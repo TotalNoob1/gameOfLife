@@ -20,9 +20,7 @@ cell* cell::checkNeigbor(std::pair<int,int> loc)
 }
 std::vector<std::pair<std::pair<int,int>,cell*>> cell::getNeighbors()
 {
-
     std::vector<std::pair<std::pair<int,int>,cell*>> temp;
-
     for (auto neigh : neigbors)
     {
         temp.push_back({neigh.first, neigh.second});
@@ -33,12 +31,16 @@ bool cell::getStatus()
 {
     return alive;
 }
-std::pair<int,int> cell::getPlace()
+std::pair<std::pair<int,int>,int> cell::getPlace()
 {
-    return place;
+    return {place,arrayLocation};
 }
-void cell::setStatus(bool status,int x, int y)
+void cell::setStatus(bool status)
 {
     alive = status;
-    place = {x,y};
 }
+void cell::setPlace(std::pair<int,int> pos, int i)
+{
+    place = pos;
+    arrayLocation = i;
+} 

@@ -3,178 +3,120 @@
 #include <string>
 #include <algorithm>
 
-std::pair<int,int> relativeLocation(int x, int y)
-{
-    std::pair<int,int> temp;
-    if (x < 0)
-    {
-        temp.first = -1;
-    }
-    else if (x > 0)
-    {
-        temp.first = 1;
-    }
-    else
-    {
-        temp.first = 0;
-    }
-    if (y < 0)
-    {
-        temp.second = -1;
-    }
-    else if (y > 0)
-    {
-        temp.second = 1;
-    }
-    else
-    {
-        temp.second = 0;
-    }
-    return temp;
-}
-void createLinks(cell *prev)
-{
-
-}
-
-canvas::canvas(std::vector<std::pair<int,int>> aliveCells)
+canvas::canvas(std::vector<std::pair<int,int>> aliveCellsPos)
 {   
-    std::pair<int,int> finding = {0,0};
-    if (find(aliveCells.begin(),aliveCells.end(),finding) != aliveCells.end())
+    for(auto coors : aliveCellsPos)
     {
-        auto temp = new cell(true,{0,0});
-        start = *temp;
-        orgin = &start;
-    }
-    else
-    {
-        auto temp = new cell(false,{0,0});
-        start = *temp;
-        orgin = &start;
-    }
-    
-    bool done = false;
-    for(auto coors : aliveCells)
-    {
-        cell *prev = orgin;
-        int layers = 0;
-        int xAxis = coors.first;
-        int yAxis = coors.second;
-        int x = 0;
-        int y = 0;
-
-        while (xAxis != 0 && yAxis != 0)
+        int xAxis = coors.first+1;//adding on to both x and y axis to ensure they will not start on the x or y axis
+        int yAxis = coors.second+1;
+        if(xAxis > currentDim.first)
         {
-            std::pair<int,int> loc = relativeLocation(xAxis,yAxis);
-            xAxis -= loc.first;
-            yAxis -= loc.second;
-            x += loc.first;
-            y += loc.second;
-            if (prev->checkNeigbor(loc) == nullptr)
+            currentDim.first = xAxis;
+        }
+        if(yAxis > currentDim.second)
+        {
+            currentDim.second = yAxis;
+        }
+
+        auto newCell = new cell(true,{xAxis,yAxis});
+        allAliveCells.push_back(newCell);
+    }
+    currentDim.first += 2;// adding 2 to a buffer layer to ensure they are not on the edge
+    currentDim.second += 2;
+
+    for (int i = 0; i < (currentDim.first*currentDim.second); i++)
+    {
+        allCells.push_back(nullptr);//Blank canvas
+        if (i % currentDim.first == i)//consider just making this a fuction that checks dimisions
+        {
+            bishopRight = i + 2;
+            bishopLeft = i;
+            upDown = i + 1;
+        }
+        
+    }
+    for (auto cell : allAliveCells)//Places the cell into the array 
+    {
+        auto pos = cell->getPlace();
+        int x = pos.first.first;
+        int y = pos.first.second;
+        int i =0;
+        if (x == y)
+        {
+            i = x * bishopRight;
+        }
+        else
+        {
+            i = (x > y) ? y * bishopRight + x - y : x * bishopRight + (y - x)* upDown ;
+        }
+        allCells[i] = cell;
+        cell->setPlace(pos.first,i);
+    }
+    for(auto cel : allAliveCells)
+    {
+        auto neighbors = cel->getNeighbors();
+        auto places = cel->getPlace();
+        auto pos = places.first;
+        for(auto neighbor : neighbors)
+        {
+            int relX = neighbor.first.first;
+            int relY = neighbor.first.second;
+            int i = relX + places.second;
+            if (relY > 0 )
             {
-                if (yAxis == 0 && xAxis == 0)
-                {
-
-                    auto next = new cell(true,{x,y});//going to have to delete
-                    allAliveCells.push_back(next);
-                    allCells.push_back(next);
-                    prev->setNeighbor(next,loc);
-                    done = true;
-
-                }
-                else
-                {
-                    auto next = new cell(false,{x,y});
-                    allCells.push_back(next);
-                    prev->setNeighbor(next,loc);
-                    prev = next;
-                }
+                i += upDown;
+            }
+            else if (relY < 0)
+            {
+                i -= upDown;
+            }
+            pos.first += relX;
+            pos.second += relY;
+            if (allCells[i] == nullptr)
+            {
+                auto deadCell = new cell(false,pos);
+                allCells[i] = deadCell;
+                deadCell->setPlace(pos,i);
+                cel->setNeighbor(deadCell,neighbor.first);
             }
             else
             {
-                prev = prev->checkNeigbor(loc);//Add A set back neighbor, along with a way to chain the neighbors
+                cel->setNeighbor(allCells[i],neighbor.first);
             }
-            layers++;
-
-
+            pos = places.first;   
         }
-        if (xAxis == 0 && !done)
-        {
-            while (yAxis != 0)
-            {
-                std::pair<int,int> loc = relativeLocation(xAxis,yAxis);
-                yAxis -= loc.second;
-                y += loc.second;
-                if (prev->checkNeigbor(loc) == nullptr)
-                {
-                    if (yAxis == 0)
-                    {
-                        auto next = new cell(true,{x,y});
-                        allAliveCells.push_back(next);
-                        allCells.push_back(next);
-                        prev->setNeighbor(next,loc);
-                    }
-                    else
-                    {
-                        auto next = new cell(false,{x,y});
-                        allCells.push_back(next);
-                        prev->setNeighbor(next,loc);
-                        prev = next;
-
-                    }
-                }
-                else
-                {
-                    prev = prev->checkNeigbor(loc);
-                }
-            }
-            layers++;
-
-            
-        }
-        else if (yAxis == 0 && !done)
-        {
-            while (xAxis != 0)
-            {
-                std::pair<int,int> loc = relativeLocation(xAxis,yAxis);
-                xAxis -= loc.first;
-                x += loc.first;
-                if (prev->checkNeigbor(loc) == nullptr)
-                {
-                    if (xAxis == 0)
-                    {
-                        auto next = new cell(true,{x,y});
-                        allAliveCells.push_back(next);
-                        allCells.push_back(next);
-                        prev->setNeighbor(next,loc);
-                    }
-                    else
-                    {
-                        auto next = new cell(false,{x,y});
-                        allCells.push_back(next);
-                        prev->setNeighbor(next,loc);
-                        prev = next;
-                    }
-                }
-                else
-                {
-                    prev = prev->checkNeigbor(loc);
-                }
-            }
-            layers++;
-        }
-        if(layers> layer)
-        {
-            layer = layers;
-        }
-        done = false;
-        
     }
+    
+    
 }
+
 void canvas::showCanvas()
 {
-    std::cout <<layer<< std::endl;
-    //auto dims = getDim(orgin,{0,0,0,0},0);
-    //printf("%d\n%d\n", dims[0],dims[1]);
-    //printf("%d\n%d\n", dims[2],dims[3]);
+    std::vector<std::string> lines;
+    std::string line ="";
+
+    for (int i = 0; i < currentDim.first * currentDim.second; i++)
+    {
+        if (allCells[i] == nullptr)
+        {
+            line.push_back('0');
+        }
+        else if (!(allCells[i]->getStatus()))
+        {
+            line.push_back('0');
+        }
+        else
+        {
+            line.push_back('1');
+        }
+        if ((i+1) % currentDim.first == 0)
+        {
+            lines.push_back(line);
+            line = "";
+        }
+    }
+    for(int i = lines.size() - 1; i >= 0; i--)
+    {
+        std::cout<<lines[i]<<std::endl;
+    }
 }
