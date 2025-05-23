@@ -12,7 +12,7 @@ cell::cell(bool isAlive,std::pair<int,int> pos)
 }
 void cell::setNeighbor(cell *neighbor, std::pair<int,int> loc)
 {
-    neigbors[loc] = neighbor;   
+    neigbors[loc] = neighbor;
 }
 cell* cell::checkNeigbor(std::pair<int,int> loc)
 {
@@ -44,3 +44,15 @@ void cell::setPlace(std::pair<int,int> pos, int i)
     place = pos;
     arrayLocation = i;
 } 
+int cell::getaliveNeighbors()
+{
+    return aliveNeighbors;
+}
+void cell::addAliveNeighbor()
+{
+    aliveNeighbors++;
+}
+void cell::removeAliveNeighbor()
+{
+    aliveNeighbors--;
+}

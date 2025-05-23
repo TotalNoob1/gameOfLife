@@ -5,7 +5,10 @@ class canvas
 {
     private:
         cell start;
-        std::vector<cell *> allAliveCells;
+        std::vector<cell *> allAliveCells;//consider changing these to bst or some other data struct to make deleting and inserting faster
+        std::vector<cell *> allDeadCells;
+        std::vector<cell *> newAliveCells;
+        std::vector<cell *> newDeadCells;  
         std::vector<cell *> allCells;
         cell *orgin;
         std::pair<int,int> currentDim = {0,0};// {x,y}
@@ -16,6 +19,7 @@ class canvas
     public:
         canvas(std::vector<std::pair<int,int>> aliveCells);
         void showCanvas();
+        void step(int steps);
 };
 
 

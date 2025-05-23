@@ -25,6 +25,7 @@ class cell
             {{0,-1}, bottom},
             {{1,-1}, bottomRight}
         };
+        int aliveNeighbors = 0;
         int arrayLocation = 0;
         std::pair<int,int> place;
     public:
@@ -37,4 +38,7 @@ class cell
         std::pair<std::pair<int,int>,int> getPlace();
         void setStatus(bool status);// The pos is on a grid. i is on the array.
         void setPlace(std::pair<int,int> pos, int i);
+        int getaliveNeighbors();
+        void removeAliveNeighbor();
+        void addAliveNeighbor();
 };

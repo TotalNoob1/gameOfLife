@@ -85,7 +85,8 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "__locale": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true
 }
