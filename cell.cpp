@@ -56,3 +56,30 @@ void cell::removeAliveNeighbor()
 {
     aliveNeighbors--;
 }
+cell::~cell()
+{
+    if (this != nullptr)
+    {
+        std::vector<std::pair<int,int>> change;
+        for(auto i : neigbors)
+        {
+            if(i.second != nullptr)
+            {
+                change.push_back(i.first);
+            }
+        }
+        for(auto i : change)
+        {
+            neigbors[i] = nullptr;
+        }
+        neigbors.~map();
+        delete topLeft;
+        delete topRight;
+        delete top;
+        delete left;
+        delete right;
+        delete bottomLeft;
+        delete bottom;
+        delete bottomRight;
+    }
+}

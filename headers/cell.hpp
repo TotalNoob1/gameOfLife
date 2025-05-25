@@ -41,4 +41,5 @@ class cell
         int getaliveNeighbors();
         void removeAliveNeighbor();
         void addAliveNeighbor();
+        ~cell();
 };

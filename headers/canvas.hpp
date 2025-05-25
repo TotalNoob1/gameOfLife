@@ -5,13 +5,13 @@ class canvas
 {
     private:
         cell start;
-        std::vector<cell *> allAliveCells;//consider changing these to bst or some other data struct to make deleting and inserting faster
-        std::vector<cell *> allDeadCells;
-        std::vector<cell *> newAliveCells;
-        std::vector<cell *> newDeadCells;  
-        std::vector<cell *> allCells;
+        std::map<std::pair<int,int>, cell *> allAliveCells;
+        std::map<std::pair<int,int>, cell *> allDeadCells;
+        std::map<std::pair<int,int>, cell *> newAliveCells;
+        std::map<std::pair<int,int>, cell *> newDeadCells;  
+        std::map<std::pair<int,int>, cell *> allCells;
         cell *orgin;
-        std::pair<int,int> currentDim = {0,0};// {x,y}
+        std::vector<int> currentDim = {0,0,0,0};// {x,-x,y,-y}
         int bishopRight = 0;// up and to the right
         int bishopLeft = 0;// up and to the left
         int upDown = 0;
@@ -19,6 +19,7 @@ class canvas
     public:
         canvas(std::vector<std::pair<int,int>> aliveCells);
         void showCanvas();
+        void setNeighbors(std::map<std::pair<int,int>, cell *> *aliveCells);
         void step(int steps);
 };
 
