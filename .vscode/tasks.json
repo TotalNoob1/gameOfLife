@@ -8,6 +8,7 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "${workspaceFolder}/*.cpp",
+                "-fopenmp",
                 "-I",
                 "${workspaceFolder}/headers/",
                 "-o",

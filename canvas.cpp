@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <omp.h>
 
 void canvas::setNeighbors(std::map<std::pair<int,int>, cell *> *aliveCells)
 {
@@ -153,24 +154,47 @@ void canvas::step(int steps)//TODO Add delete dead cells with no alive neighbors
 {
     for (int i = 0; i < steps; i++)
     {
-
-        for(auto cel : allAliveCells)
+        #pragma omp parallel 
         {
-            int alive = cel.second->getaliveNeighbors();
-            //Rule 1 Each cell with one or no neighbors dies
-            //Rule 2 Each cell with four or more neighbors dies
-            if (alive <= 1 || alive >= 4)
+            #pragma omp single
             {
-                newDeadCells.insert({cel.first,cel.second});
+                for(auto cel : allAliveCells)
+                {
+                    #pragma omp task
+                    {
+                        int alive = cel.second->getaliveNeighbors();
+                        //Rule 1 Each cell with one or no neighbors dies
+                        //Rule 2 Each cell with four or more neighbors dies
+                        if (alive <= 1 || alive >= 4)
+                        {
+                            #pragma omp critical
+                            {
+                                newDeadCells.insert({cel.first,cel.second});
+                            }
+                        }
+                        //Rule 3 Each cell with two or three neighbor lives
+                    } 
+                }
             }
-            //Rule 3 Each cell with two or three neighbor lives 
         }
-        for(auto cel : allDeadCells)
+        #pragma omp parallel 
         {
-            int alive = cel.second->getaliveNeighbors();
-            if (alive == 3)
+            #pragma omp single
             {
-                newAliveCells.insert({cel.first,cel.second});
+                for(auto cel : allDeadCells)
+                {
+                    #pragma omp task
+                    {
+                        int alive = cel.second->getaliveNeighbors();
+                        if (alive == 3)
+                        {
+                            #pragma omp critical
+                            {
+                                newAliveCells.insert({cel.first,cel.second});
+                            }
+                        }
+                    }
+                }
             }
         }
         for(auto newCell : newAliveCells)
